@@ -7,7 +7,24 @@ const JWT_SECRET = "secret";
 export default {
   async register({ username, password, profilePicture }) {
     // TODO: get ahold of the db using readDb();
+    const db = await readDb();
+    
     // TODO: check if there is an existing user with the same username
+    const foundUser = db.users.find(user => user.username === username)
+
+    if (usernameTaken) {
+      const error = new Error()
+      error.statusCode = 400;
+      throw erro;
+    }
+    const user = {
+      id: crypto.randomUUID(),
+      username: username,
+      password: password,
+      profilePicture: profilePicture || ""
+    };
+    db.users.push(user);
+    await writeDb(db);
     // TODO: if there is, do the following:
     //       - construct a new Error("Username already taken");
     //       - set the statusCode of that error object to 400
@@ -22,9 +39,9 @@ export default {
     // TODO:  return the user object but without their password  (only id, username, profilePicture)
 
     return {
-      id: "dummy-id",
-      username: "dummy-username",
-      profilePicture: "",
+      id: user.id,
+      username: user.username,
+      profilePicture: user.profilePicture,
     };
   },
 
