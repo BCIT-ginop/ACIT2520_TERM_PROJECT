@@ -8,20 +8,17 @@ export default {
   async register({ username, password, profilePicture }) {
     // TODO: get ahold of the db using readDb();
     const db = await readDb();
-    
     // TODO: check if there is an existing user with the same username
     const foundUser = db.users.find(user => user.username === username)
-    
     // TODO: if there is, do the following:
     //       - construct a new Error("Username already taken");
     //       - set the statusCode of that error object to 400
     //       - throw the err
-    if (usernameTaken) {
+    if (foundUser) {
       const error = new Error("Username already taken")
       error.statusCode = 400;
       throw error;
     }
-
     // TODO: otherwise, create a user object. A user has:
     //       - id: a random string-based id (crypto.randomUUID())
     //       - username: a username
@@ -37,7 +34,6 @@ export default {
     db.users.push(user);
     // TODO:  call the writeDb(db) operation to save changes.
     await writeDb(db);
-    
     // TODO:  return the user object but without their password  (only id, username, profilePicture)
     return {
       id: user.id,
@@ -53,33 +49,26 @@ export default {
     const user = db.users.find(
       (user) => user.username === username && user.password === password
     );
-
     // TODO: if there is no user:
     //       - construct a new Error("Invalid username or password");
     //       - set the statusCode of that error object to 401
     //       - throw the err
     if (!user) {
-      const error = new Error("Invalide username or password");
+      const error = new Error("Invalid username or password");
       error.statusCode = 401;
       throw error;
     }
-    
     // TODO: otherwise, create a login token. I'll help you out with this one:
-    // const token = jwt.sign({ userId: user.id, username: user.username }, JWT_SECRET, { expiresIn: "1h" })
-    const token = jwt.sign({
-      userId: user.id,
-      username: user.username
-    }, JWT_SECRET, { expiresIn: "1h" })
-    
+    const token = jwt.sign({ userId: user.id, username: user.username }, JWT_SECRET, { expiresIn: "1h" })
     // TODO:  return an object that contains 2 things:
     //  - token
     //  - user : { id: user.id, username: user.username, profilePicture: user.profilePicture }
     return {
       token,
       user: {
-        id: "dummy-id",
-        username: "dummy-username",
-        profilePicture: "dummy-profilePicture",
+        id: user.id,
+        username: user.username,
+        profilePicture: user.profilePicture,
       },
     };
   },
